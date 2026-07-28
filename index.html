@@ -43,6 +43,12 @@
     button:hover {
       background: #aaa;
     }
+    .icon-wrap {
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .icon {
       font-size: 3rem;
       line-height: 1;
@@ -76,14 +82,16 @@
   <h1>Hello Mr. Blake!</h1>
   <div class="nav-row">
     <button onclick="window.location.href='chess.html'">
-      <span class="icon">&#9812;</span>
+      <span class="icon-wrap"><span class="icon">&#9812;</span></span>
       <span class="label">Chess</span>
     </button>
     <button onclick="window.location.href='tictactoe.html'">
-      <span class="ttt-icon">
-        <div>X</div><div></div><div>O</div>
-        <div></div><div>O</div><div></div>
-        <div>X</div><div></div><div>X</div>
+      <span class="icon-wrap">
+        <span class="ttt-icon">
+          <div>X</div><div></div><div>O</div>
+          <div></div><div>O</div><div></div>
+          <div>X</div><div></div><div>X</div>
+        </span>
       </span>
       <span class="label">Tic Tac Toe</span>
     </button>
