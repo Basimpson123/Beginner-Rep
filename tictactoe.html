@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webstie Test</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: sans-serif;
+      background: #333;
+    }
+    h1 {
+      font-size: 3rem;
+      color: #fff;
+    }
+    #status {
+      color: #fff;
+      font-size: 1.25rem;
+      margin-top: 0.5rem;
+      height: 1.5rem;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 6rem);
+      grid-template-rows: repeat(3, 6rem);
+      gap: 6px;
+      margin-top: 1rem;
+    }
+    .cell {
+      background: #555;
+      border: none;
+      border-radius: 8px;
+      font-size: 3rem;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .cell:hover:not(:disabled) {
+      background: #666;
+    }
+    .cell:disabled {
+      cursor: default;
+    }
+    button.action {
+      margin-top: 1.5rem;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      background: #888;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button.action:hover {
+      background: #aaa;
+    }
+    .nav {
+      display: flex;
+      gap: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tic Tac Toe</h1>
+  <div id="status">X's turn</div>
+  <div class="board" id="board"></div>
+  <div class="nav">
+    <button class="action" id="reset">Restart</button>
+    <button class="action" onclick="window.location.href='index.html'">Go to Home Page</button>
+  </div>
+
+  <script>
+    const boardEl = document.getElementById('board');
+    const statusEl = document.getElementById('status');
+    const resetBtn = document.getElementById('reset');
+
+    const WIN_LINES = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6],
+    ];
+
+    let cells = Array(9).fill('');
+    let current = 'X';
+    let gameOver = false;
+
+    function checkWinner() {
+      for (const [a, b, c] of WIN_LINES) {
+        if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+          return cells[a];
+        }
+      }
+      if (cells.every(c => c)) return 'draw';
+      return null;
+    }
+
+    function render() {
+      boardEl.innerHTML = '';
+      cells.forEach((val, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'cell';
+        btn.textContent = val;
+        btn.disabled = !!val || gameOver;
+        btn.addEventListener('click', () => handleMove(i));
+        boardEl.appendChild(btn);
+      });
+    }
+
+    function handleMove(i) {
+      if (cells[i] || gameOver) return;
+      cells[i] = current;
+      const result = checkWinner();
+      if (result === 'draw') {
+        statusEl.textContent = "It's a draw!";
+        gameOver = true;
+      } else if (result) {
+        statusEl.textContent = `${result} wins!`;
+        gameOver = true;
+      } else {
+        current = current === 'X' ? 'O' : 'X';
+        statusEl.textContent = `${current}'s turn`;
+      }
+      render();
+    }
+
+    resetBtn.addEventListener('click', () => {
+      cells = Array(9).fill('');
+      current = 'X';
+      gameOver = false;
+      statusEl.textContent = "X's turn";
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
