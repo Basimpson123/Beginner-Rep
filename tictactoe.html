@@ -25,12 +25,33 @@
       margin-top: 0.5rem;
       height: 1.5rem;
     }
+    .board-wrap {
+      position: relative;
+      margin-top: 1rem;
+    }
     .board {
       display: grid;
       grid-template-columns: repeat(3, 6rem);
       grid-template-rows: repeat(3, 6rem);
       gap: 6px;
-      margin-top: 1rem;
+    }
+    .win-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .win-line line {
+      stroke: #ffd166;
+      stroke-width: 6;
+      stroke-linecap: round;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .win-line line.visible {
+      opacity: 1;
     }
     .cell {
       background: #555;
@@ -72,7 +93,10 @@
 <body>
   <h1>Tic Tac Toe</h1>
   <div id="status">X's turn</div>
-  <div class="board" id="board"></div>
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+    <svg class="win-line"><line id="winLine" x1="0" y1="0" x2="0" y2="0"></line></svg>
+  </div>
   <div class="nav">
     <button class="action" id="reset">Restart</button>
     <button class="action" onclick="window.location.href='index.html'">Go to Home Page</button>
@@ -80,8 +104,10 @@
 
   <script>
     const boardEl = document.getElementById('board');
+    const boardWrapEl = document.querySelector('.board-wrap');
     const statusEl = document.getElementById('status');
     const resetBtn = document.getElementById('reset');
+    const winLineEl = document.getElementById('winLine');
 
     const WIN_LINES = [
       [0,1,2],[3,4,5],[6,7,8],
@@ -94,13 +120,26 @@
     let gameOver = false;
 
     function checkWinner() {
-      for (const [a, b, c] of WIN_LINES) {
+      for (const line of WIN_LINES) {
+        const [a, b, c] = line;
         if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
-          return cells[a];
+          return { winner: cells[a], line };
         }
       }
       if (cells.every(c => c)) return 'draw';
       return null;
+    }
+
+    function drawWinLine(line) {
+      const [a, , c] = line;
+      const cellA = boardEl.children[a].getBoundingClientRect();
+      const cellC = boardEl.children[c].getBoundingClientRect();
+      const wrapRect = boardWrapEl.getBoundingClientRect();
+      winLineEl.setAttribute('x1', cellA.left + cellA.width / 2 - wrapRect.left);
+      winLineEl.setAttribute('y1', cellA.top + cellA.height / 2 - wrapRect.top);
+      winLineEl.setAttribute('x2', cellC.left + cellC.width / 2 - wrapRect.left);
+      winLineEl.setAttribute('y2', cellC.top + cellC.height / 2 - wrapRect.top);
+      winLineEl.classList.add('visible');
     }
 
     function render() {
@@ -119,17 +158,18 @@
       if (cells[i] || gameOver) return;
       cells[i] = current;
       const result = checkWinner();
+      render();
       if (result === 'draw') {
         statusEl.textContent = "It's a draw!";
         gameOver = true;
       } else if (result) {
-        statusEl.textContent = `${result} wins!`;
+        statusEl.textContent = `${result.winner} wins!`;
         gameOver = true;
+        drawWinLine(result.line);
       } else {
         current = current === 'X' ? 'O' : 'X';
         statusEl.textContent = `${current}'s turn`;
       }
-      render();
     }
 
     resetBtn.addEventListener('click', () => {
@@ -137,6 +177,7 @@
       current = 'X';
       gameOver = false;
       statusEl.textContent = "X's turn";
+      winLineEl.classList.remove('visible');
       render();
     });
 
